@@ -1,0 +1,8 @@
+/.project
+/target/
+/.settings/
+/.classpath
+*.log
+/.idea
+/parent.iml
+/filecoinj.iml

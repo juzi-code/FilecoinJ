@@ -35,6 +35,15 @@ public class Filecoin {
     }
 
     /**
+     * rpc节点创建钱包
+     *
+     * @return WalletResult
+     */
+    public String createWalletRpc() throws WalletException, ExecuteException {
+        return filcoinHandler.createWalletRpc(FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+    /**
      * 导入钱包
      *
      * @return WalletResult
@@ -178,6 +187,54 @@ public class Filecoin {
      */
     public BalanceResult balanceOf(String address,int timeout) throws BalanceOfException, ExecuteException {
         return filcoinHandler.balanceOf(address,timeout);
+    }
+
+    /**
+     * 获取钱包默认地址
+     * @return
+     * @throws ExecuteException
+     */
+    public String getWalletDefaultAddress() throws ExecuteException {
+        return filcoinHandler.getWalletDefaultAddress(FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+    /**
+     * 获取钱包默认地址
+     * @return
+     * @throws ExecuteException
+     */
+    public String getWalletDefaultAddress(int timeout) throws ExecuteException {
+        return filcoinHandler.getWalletDefaultAddress(timeout);
+    }
+
+
+
+    /**
+     * 校验地址有效性
+     * @param address
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public boolean validateAddress(String address) throws ExecuteException, ParameException{
+        return filcoinHandler.validateAddress(address,FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+
+    /**
+     * 校验地址有效性
+     * @param address
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public boolean validateAddress(String address,int timeout) throws ExecuteException, ParameException{
+        return filcoinHandler.validateAddress(address,timeout);
+    }
+
+    public String getMessageByCid(String cid) throws ExecuteException, ParameException{
+        return filcoinHandler.getMessageByCid(cid, FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
 

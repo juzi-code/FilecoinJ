@@ -13,16 +13,38 @@ import com.filecoinj.model.result.WalletResult;
 import java.math.BigInteger;
 
 public class Test {
-    private static Filecoin filecoin = new Filecoin("http://192.168.2.21:1234/rpc/v0",
-            "Bearer eyJhbGciOiJIUzI1aiIsInR5cCI6IkpXVCJ1.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.ZHABMIbiRejFWLSr8gH0NTnloxhSKU-ffwenHXevNH8");
+    private static Filecoin filecoin = new Filecoin("http://172.16.13.81:1234/rpc/v0",
+            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.v0DsdjX3Ds9HEaUFipXSAT7I-BdtHGLcbazsNGjltMs");
 
     public static void main(String[] agrs) throws Exception {
-        easySend();
+        getMessageByCid("bafy2bzacea3wsdh6y3a36tb3skempjoxqpuyompjbmfeyf34fi3uy6uue42v4");
+    }
+
+
+    public static void getMessageByCid(String cid) throws Exception {
+        String rs = filecoin.getMessageByCid(cid);
+        System.out.println(rs);
+    }
+
+
+    public static void validateAddress(String address) throws Exception {
+        boolean rs = filecoin.validateAddress(address);
+        System.out.println(rs);
+    }
+
+    public static void getWalletDefaultAddress() throws Exception {
+        String address = filecoin.getWalletDefaultAddress();
+        System.out.println(address);
     }
 
     public static void createWalletTest() throws Exception {
         WalletResult wallet = filecoin.createWallet();
         System.out.println(wallet);
+    }
+
+    public static void createWalletRpcTest() throws Exception {
+        String address = filecoin.createWalletRpc();
+        System.out.println(address);
     }
 
     public static void importWalletTest() throws Exception {
@@ -31,13 +53,13 @@ public class Test {
     }
 
     public static void balanceOfTest() throws Exception {
-        BalanceResult result = filecoin.balanceOf("地址");
+        BalanceResult result = filecoin.balanceOf("f17o75zwv6hrngzawwxecpcbpcvhacksqxpda5gpa");
         System.out.println(result);
     }
 
     public static void getGas() throws Exception {
-        GasResult result = filecoin.getGas(GetGas.builder().from("地址")
-                .to("地址")
+        GasResult result = filecoin.getGas(GetGas.builder().from("f17o75zwv6hrngzawwxecpcbpcvhacksqxpda5gpa")
+                .to("f17o75zwv6hrngzawwxecpcbpcvhacksqxpda5gpa")
                 .value(BigInteger.valueOf(1000000000000L)).build());
         System.out.println(result);
     }

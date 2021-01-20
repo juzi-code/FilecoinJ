@@ -50,6 +50,29 @@ public class FilecoinCnt {
      * 广播交易
      */
     public static final String BOARD_TRANSACTION = "Filecoin.MpoolPush";
+
+    /**
+     * 获取一个新的钱包地址
+     */
+    public static final String NEW_WALLET_ADDRESS = "Filecoin.WalletNew";
+
+    /**
+     * 获取钱包默认地址
+     */
+    public static final String GET_WALLET_DEFAULT_ADDRESS = "Filecoin.WalletDefaultAddress";
+
+    /**
+     * 校验钱包地址
+     */
+    public static final String WALLET_VALIDATE_ADDRESS = "Filecoin.WalletValidateAddress";
+
+
+    /**
+     * 获取指定消息
+     */
+    public static final String CHAIN_GET_MESSAGE = "Filecoin.ChainGetMessage";
+
+
     /**
      * 默认超时时间
      */

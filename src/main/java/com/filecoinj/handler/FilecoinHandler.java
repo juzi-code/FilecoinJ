@@ -12,11 +12,7 @@ import cn.hutool.json.JSONObject;
 import com.filecoinj.config.Args;
 import com.filecoinj.constant.FilecoinCnt;
 import com.filecoinj.crypto.ECKey;
-import com.filecoinj.exception.BalanceOfException;
-import com.filecoinj.exception.ExecuteException;
-import com.filecoinj.exception.ParameException;
-import com.filecoinj.exception.SendException;
-import com.filecoinj.exception.WalletException;
+import com.filecoinj.exception.*;
 import com.filecoinj.model.EasySend;
 import com.filecoinj.model.GetGas;
 import com.filecoinj.model.RpcPar;
@@ -25,10 +21,12 @@ import com.filecoinj.model.result.BalanceResult;
 import com.filecoinj.model.result.GasResult;
 import com.filecoinj.model.result.SendResult;
 import com.filecoinj.model.result.WalletResult;
+import org.springframework.util.StringUtils;
 import ove.crypto.digest.Blake2b;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class FilecoinHandler {
@@ -48,6 +46,27 @@ public class FilecoinHandler {
         String filAddress = byteToAddress(pubKey);
         String privatekey = HexUtil.encodeHexStr(privKeyBytes);
         return WalletResult.builder().address(filAddress).privatekey(privatekey).build();
+    }
+
+    /**
+     * 从rpc节点获取一个新地址
+     * @return
+     * @throws SendException
+     */
+    public String createWalletRpc(int timeout) throws ExecuteException, WalletException {
+        List<Object> params = new ArrayList<>();
+        params.add("bls"); //密钥类型 包括： bls(已弃用), secp256k1
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.NEW_WALLET_ADDRESS)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        JSONObject jsonObject = new JSONObject(execute);
+        String address = jsonObject.getStr("result");
+        if (StringUtils.isEmpty(address)){
+            throw new WalletException("create wallet error");
+        }
+        return address;
     }
 
     public WalletResult importWallet(String privatekey) throws WalletException {
@@ -253,4 +272,65 @@ public class FilecoinHandler {
         }
         return gasResult;
     }
+
+    /**
+     * 获取钱包默认地址
+     * @return
+     */
+    public String getWalletDefaultAddress(int timeout) throws ExecuteException {
+        List<Object> params = new ArrayList<>();
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.GET_WALLET_DEFAULT_ADDRESS)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        JSONObject jsonObject = new JSONObject(execute);
+        String address = jsonObject.getStr("result");
+        return address;
+    }
+
+    /**
+     * 校验地址是否有效
+     * @param address
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public boolean validateAddress(String address,int timeout) throws ExecuteException, ParameException {
+        if (StringUtils.isEmpty(address)){
+            throw new ParameException("paramter cannot be empty");
+        }
+        List<Object> params = new ArrayList<>();
+        params.add(address);
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.WALLET_VALIDATE_ADDRESS)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        JSONObject jsonObject = new JSONObject(execute);
+        String result = jsonObject.getStr("result");
+        return !StringUtils.isEmpty(result);
+    }
+
+    public String getMessageByCid(String cid,int timeout) throws ExecuteException, ParameException {
+        if (StringUtils.isEmpty(cid)){
+            throw new ParameException("paramter cannot be empty");
+        }
+        List<Object> params = new ArrayList<>();
+        HashMap<String, String> _cid = new HashMap<>();
+        _cid.put("/", cid);
+        params.add(_cid);
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.CHAIN_GET_MESSAGE)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        JSONObject jsonObject = new JSONObject(execute);
+        String result = jsonObject.getStr("result");
+        return result;
+    }
+
+
+
 }
