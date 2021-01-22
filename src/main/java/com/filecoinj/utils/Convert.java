@@ -26,7 +26,7 @@ public class Convert {
 
     public static enum Unit {
         DEFAULT("default", 0),
-        ETHER("fil", 18),
+        FIL("fil", 18),
         ;
 
         private String name;
