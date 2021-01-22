@@ -184,7 +184,8 @@ public class FilecoinHandler {
         try {
             JSONObject executeJson = new JSONObject(execute);
             String result = executeJson.getJSONObject("result").getStr("/");
-            build = SendResult.builder().cid(result).build();
+            build = SendResult.builder().cid(result)
+                    .nonce(transaction.getNonce()).build();
         } catch (Exception e) {
             e.printStackTrace();
             throw new SendException("send error " + execute);

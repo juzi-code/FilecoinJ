@@ -4,41 +4,41 @@ import java.math.BigDecimal;
 
 /**
  * 单位转换
- * 注意：以下Default所指为filcoin默认单位
+ *
  */
 public class Convert {
 
-    public static BigDecimal fromDefault(String number, Convert.Unit unit) {
-        return fromDefault(new BigDecimal(number), unit);
+    public static BigDecimal fromAtto(String number, Convert.Unit unit) {
+        return fromAtto(new BigDecimal(number), unit);
     }
 
-    public static BigDecimal fromDefault(BigDecimal number, Convert.Unit unit) {
-        return number.divide(unit.getWeiFactor());
+    public static BigDecimal fromAtto(BigDecimal number, Convert.Unit unit) {
+        return number.divide(unit.getAttoFactor());
     }
 
-    public static BigDecimal toDefault(String number, Convert.Unit unit) {
-        return toDefault(new BigDecimal(number), unit);
+    public static BigDecimal toAtto(String number, Convert.Unit unit) {
+        return toAtto(new BigDecimal(number), unit);
     }
 
-    public static BigDecimal toDefault(BigDecimal number, Convert.Unit unit) {
-        return number.multiply(unit.getWeiFactor());
+    public static BigDecimal toAtto(BigDecimal number, Convert.Unit unit) {
+        return number.multiply(unit.getAttoFactor());
     }
 
     public static enum Unit {
-        DEFAULT("default", 0),
+        ATTO("atto", 0),
         FIL("fil", 18),
         ;
 
         private String name;
-        private BigDecimal defaultFactor;
+        private BigDecimal attoFactor;
 
         private Unit(String name, int factor) {
             this.name = name;
-            this.defaultFactor = BigDecimal.TEN.pow(factor);
+            this.attoFactor = BigDecimal.TEN.pow(factor);
         }
 
-        public BigDecimal getWeiFactor() {
-            return this.defaultFactor;
+        public BigDecimal getAttoFactor() {
+            return attoFactor;
         }
 
         public String toString() {

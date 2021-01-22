@@ -18,4 +18,9 @@ public class SendResult implements Serializable {
      * 交易CID
      */
     private String cid;
+
+    /**
+     * nonce值
+     */
+    private Long nonce;
 }
