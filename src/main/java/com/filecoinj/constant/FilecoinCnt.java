@@ -81,9 +81,28 @@ public class FilecoinCnt {
 
 
     /**
-     * 获取指定消息
+     * 获取最新区块信息
+     */
+    public static final String CHAIN_HEAD = "Filecoin.ChainHead";
+
+    /**
+     * 根据区块链高度获取区块链信息
+     */
+    public static final String CHAIN_GET_TIP_SET_BY_HEIGHT = "Filecoin.ChainGetTipSetByHeight";
+
+
+    /**
+     * 根据区块cid获取区块内的所有消息
+     */
+    public static final String CHAIN_GET_BLOCK_MESSAGES = "Filecoin.ChainGetBlockMessages";
+
+
+    /**
+     * 根据消息cid获取消息详情
      */
     public static final String CHAIN_GET_MESSAGE = "Filecoin.ChainGetMessage";
+
+
 
 
     /**

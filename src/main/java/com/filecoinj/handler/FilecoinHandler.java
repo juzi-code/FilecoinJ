@@ -8,6 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.filecoinj.config.Args;
 import com.filecoinj.constant.FilecoinCnt;
@@ -17,10 +18,7 @@ import com.filecoinj.model.EasySend;
 import com.filecoinj.model.GetGas;
 import com.filecoinj.model.RpcPar;
 import com.filecoinj.model.Transaction;
-import com.filecoinj.model.result.BalanceResult;
-import com.filecoinj.model.result.GasResult;
-import com.filecoinj.model.result.SendResult;
-import com.filecoinj.model.result.WalletResult;
+import com.filecoinj.model.result.*;
 import org.springframework.util.StringUtils;
 import ove.crypto.digest.Blake2b;
 
@@ -288,8 +286,15 @@ public class FilecoinHandler {
                 .method(FilecoinCnt.GET_WALLET_DEFAULT_ADDRESS)
                 .params(params).build();
         String execute = execute(par,timeout);
-        JSONObject jsonObject = new JSONObject(execute);
-        String address = jsonObject.getStr("result");
+        String address = null;
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            address = jsonObject.getStr("result");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("getWalletDefaultAddress error " + execute);
+        }
+
         return address;
     }
 
@@ -312,29 +317,192 @@ public class FilecoinHandler {
                 .method(FilecoinCnt.WALLET_VALIDATE_ADDRESS)
                 .params(params).build();
         String execute = execute(par,timeout);
-        JSONObject jsonObject = new JSONObject(execute);
-        String result = jsonObject.getStr("result");
+        String result = null;
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            result = jsonObject.getStr("result");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("validateAddress error " + execute);
+        }
         return !StringUtils.isEmpty(result);
     }
 
-    public String getMessageByCid(String cid,int timeout) throws ExecuteException, ParameException {
-        if (StringUtils.isEmpty(cid)){
+    /**
+     * 根据区块cid获取区块内所有消息
+     * @param blockCid
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public List<MessagesResult> getChainBlockMessages(String blockCid, int timeout) throws ExecuteException, ParameException {
+        if (StringUtils.isEmpty(blockCid)){
             throw new ParameException("paramter cannot be empty");
         }
         List<Object> params = new ArrayList<>();
         HashMap<String, String> _cid = new HashMap<>();
-        _cid.put("/", cid);
+        _cid.put("/", blockCid);
+        params.add(_cid);
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.CHAIN_GET_BLOCK_MESSAGES)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        ArrayList<MessagesResult> messagesResults = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            JSONObject result = jsonObject.getJSONObject("result");
+            JSONArray blsMessagesArr = result.getJSONArray("BlsMessages");
+            JSONArray SecpkMessagesArr = result.getJSONArray("SecpkMessages");
+            if (blsMessagesArr != null){
+                for (Object o : blsMessagesArr) {
+                    messagesResults.add(messagesJsonToMessagesResult(new JSONObject(o)));
+                }
+            }
+            if (SecpkMessagesArr != null){
+                for (Object o : SecpkMessagesArr) {
+                    messagesResults.add(messagesJsonToMessagesResult(new JSONObject(o)));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("getChainBlockMessages error " + execute);
+        }
+        return messagesResults;
+    }
+
+    /**
+     * 根据消息cid获取消息详情
+     * @param messCid 消息cid
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public MessagesResult getMessageByCid(String messCid, int timeout) throws ExecuteException, ParameException {
+        if (StringUtils.isEmpty(messCid)){
+            throw new ParameException("paramter cannot be empty");
+        }
+        List<Object> params = new ArrayList<>();
+        HashMap<String, String> _cid = new HashMap<>();
+        _cid.put("/", messCid);
         params.add(_cid);
         RpcPar par = RpcPar.builder().id(1)
                 .jsonrpc("2.0")
                 .method(FilecoinCnt.CHAIN_GET_MESSAGE)
                 .params(params).build();
         String execute = execute(par,timeout);
-        JSONObject jsonObject = new JSONObject(execute);
-        String result = jsonObject.getStr("result");
-        return result;
+        MessagesResult messagesResult = null;
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            JSONObject result = jsonObject.getJSONObject("result");
+            messagesResult = messagesJsonToMessagesResult(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("getMessageByCid error " + execute);
+        }
+        return messagesResult;
     }
 
+    /**
+     * 获取当前最新一个区块链数据
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public ChainResult getChainHead(int timeout) throws ExecuteException {
+        List<Object> params = new ArrayList<>();
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.CHAIN_HEAD)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        ChainResult chainResult = null;
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            chainResult = chainJsonToChainResult(jsonObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("getChainHead error " + execute);
+        }
+        return chainResult;
+    }
+
+    /**
+     * 根据链高度获取区块数据
+     * @param heigth
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public ChainResult getChainTipSetByHeight(BigInteger heigth, int timeout) throws ExecuteException, ParameException {
+        if (heigth == null || heigth.compareTo(BigInteger.ZERO) < 0){
+            throw new ParameException("paramter cannot be empty");
+        }
+        List<Object> params = new ArrayList<>();
+        params.add(heigth);
+        params.add(null);
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.CHAIN_GET_TIP_SET_BY_HEIGHT)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        ChainResult chainResult = null;
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            chainResult = chainJsonToChainResult(jsonObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("getChainTipSetByHeight error " + execute);
+        }
+        return chainResult;
+    }
+
+
+    /**
+     * 消息json转为消息对象
+     * @param jsonObject
+     * @return
+     */
+    private MessagesResult messagesJsonToMessagesResult(JSONObject jsonObject){
+        return MessagesResult.builder().from(jsonObject.getStr("From"))
+                .to(jsonObject.getStr("To"))
+                .version(jsonObject.getInt("Version"))
+                .nonce(jsonObject.getInt("Nonce"))
+                .value(jsonObject.getBigInteger("Value"))
+                .gasLimit(jsonObject.getInt("GasLimit"))
+                .gasFeeCap(jsonObject.getBigInteger("GasFeeCap"))
+                .gasPremium(jsonObject.getBigInteger("GasPremium"))
+                .method(jsonObject.getInt("Method"))
+                .params(jsonObject.getStr("Params"))
+                .cid(jsonObject.getJSONObject("CID")
+                        .getStr("/"))
+                .build();
+    }
+    /**
+     * 区块链json数据转对象
+     * @param jsonObject
+     * @return
+     */
+    private ChainResult chainJsonToChainResult(JSONObject jsonObject){
+        JSONObject result = jsonObject.getJSONObject("result");
+        BigInteger height = result.getBigInteger("Height");
+        ArrayList<String> cidList = new ArrayList<>();
+        JSONArray cidJsonArr = result.getJSONArray("Cids");
+        if (cidJsonArr != null){
+            for (Object o : cidJsonArr) {
+                JSONObject cidKy = new JSONObject(o);
+                String cid = cidKy.getStr("/");
+                if (!StringUtils.isEmpty(cid)){
+                    cidList.add(cid);
+                }
+            }
+        }
+        return ChainResult.builder().height(height).blockCidList(cidList).build();
+    }
 
 
 }

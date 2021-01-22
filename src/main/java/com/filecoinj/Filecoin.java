@@ -8,10 +8,10 @@ import com.filecoinj.handler.FilecoinHandler;
 import com.filecoinj.model.EasySend;
 import com.filecoinj.model.GetGas;
 import com.filecoinj.model.Transaction;
-import com.filecoinj.model.result.BalanceResult;
-import com.filecoinj.model.result.GasResult;
-import com.filecoinj.model.result.SendResult;
-import com.filecoinj.model.result.WalletResult;
+import com.filecoinj.model.result.*;
+
+import java.math.BigInteger;
+import java.util.List;
 
 public class Filecoin {
     private FilecoinHandler filcoinHandler;
@@ -254,9 +254,64 @@ public class Filecoin {
         return filcoinHandler.validateAddress(address,timeout);
     }
 
-    public String getMessageByCid(String cid) throws ExecuteException, ParameException{
+    /**
+     * 根据消息cid获取消息信息
+     * @param cid
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public MessagesResult getMessageByCid(String cid) throws ExecuteException, ParameException{
         return filcoinHandler.getMessageByCid(cid, FilecoinCnt.DEFAULT_TIMEOUT);
     }
+
+    public MessagesResult getMessageByCid(String cid,int timeout) throws ExecuteException, ParameException{
+        return filcoinHandler.getMessageByCid(cid, timeout);
+    }
+
+    /**
+     * 根据区块cid获取消息
+     * @param blockCid
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public List<MessagesResult> getMessagesByBlockCid(String blockCid) throws ExecuteException, ParameException{
+        return filcoinHandler.getChainBlockMessages(blockCid, FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+    public List<MessagesResult> getMessagesByBlockCid(String blockCid, int timeout) throws ExecuteException, ParameException{
+        return filcoinHandler.getChainBlockMessages(blockCid, timeout);
+    }
+
+    /**
+     * 获取当前最新区块链
+     * @return
+     * @throws ExecuteException
+     */
+    public ChainResult getChainHead() throws ExecuteException{
+        return filcoinHandler.getChainHead(FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+    public ChainResult getChainHead(int timeout) throws ExecuteException{
+        return filcoinHandler.getChainHead(timeout);
+    }
+
+    /**
+     * 根据区块高度获取区块链
+     * @param height
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public ChainResult getChainTipSetByHeight(BigInteger height) throws ExecuteException, ParameException {
+        return filcoinHandler.getChainTipSetByHeight(height, FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+    public ChainResult getChainTipSetByHeight(BigInteger height, int timeout) throws ExecuteException, ParameException {
+        return filcoinHandler.getChainTipSetByHeight(height, timeout);
+    }
+
 
 
 }
