@@ -1,12 +1,9 @@
 package com.filecoinj;
 
+import com.filecoinj.bean.FilecoinProperties;
 import com.filecoinj.config.Args;
 import com.filecoinj.constant.FilecoinCnt;
-import com.filecoinj.exception.BalanceOfException;
-import com.filecoinj.exception.ExecuteException;
-import com.filecoinj.exception.ParameException;
-import com.filecoinj.exception.SendException;
-import com.filecoinj.exception.WalletException;
+import com.filecoinj.exception.*;
 import com.filecoinj.handler.FilecoinHandler;
 import com.filecoinj.model.EasySend;
 import com.filecoinj.model.GetGas;
@@ -20,8 +17,32 @@ public class Filecoin {
     private FilecoinHandler filcoinHandler;
 
     public Filecoin(String url, String nodeAuthorization) {
+        Args.getINSTANCE().setNodeType(FilecoinCnt.PRIVATE_NODE);
         Args.getINSTANCE().setUrl(url);
         Args.getINSTANCE().setNodeAuthorization(nodeAuthorization);
+        filcoinHandler = new FilecoinHandler();
+    }
+
+    public Filecoin(String url, String rpcUserName, String rpcSecret) {
+        Args.getINSTANCE().setNodeType(FilecoinCnt.INFURA_NODE);
+        Args.getINSTANCE().setUrl(url);
+        Args.getINSTANCE().setRpcUserName(rpcUserName);
+        Args.getINSTANCE().setRpcSecret(rpcSecret);
+        filcoinHandler = new FilecoinHandler();
+    }
+
+    public Filecoin(FilecoinProperties filecoinProperties) {
+        Args.getINSTANCE().setUrl(filecoinProperties.getRpcUrl());
+        //infura节点
+        if (filecoinProperties.getNodeType().equalsIgnoreCase(FilecoinCnt.INFURA_NODE)){
+            Args.getINSTANCE().setNodeType(FilecoinCnt.INFURA_NODE);
+            Args.getINSTANCE().setRpcUserName(filecoinProperties.getRpcUsername());
+            Args.getINSTANCE().setRpcSecret(filecoinProperties.getRpcSecret());
+        }else {
+            //默认私有节点
+            Args.getINSTANCE().setNodeType(FilecoinCnt.PRIVATE_NODE);
+            Args.getINSTANCE().setNodeAuthorization(filecoinProperties.getRpcToken());
+        }
         filcoinHandler = new FilecoinHandler();
     }
 

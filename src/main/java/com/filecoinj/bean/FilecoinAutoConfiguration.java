@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ConditionalOnMissingBean(Filecoin.class)
-@ConditionalOnProperty(prefix = "filecoin", name = {"rpc-url","rpc-token"})
+@ConditionalOnProperty(prefix = "filecoin", name = {"node-type"})
 @EnableConfigurationProperties(FilecoinProperties.class)
 public class FilecoinAutoConfiguration {
 
@@ -24,6 +24,6 @@ public class FilecoinAutoConfiguration {
 
 	@Bean
 	public Filecoin filecoin() {
-		return new Filecoin(filecoinProperties.getRpcUrl(), filecoinProperties.getRpcToken());
+		return new Filecoin(filecoinProperties);
 	}
 }

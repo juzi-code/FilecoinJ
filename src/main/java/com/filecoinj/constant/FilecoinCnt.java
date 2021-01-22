@@ -1,6 +1,19 @@
 package com.filecoinj.constant;
 
+import java.math.BigDecimal;
+
 public class FilecoinCnt {
+
+    /**
+     * 节点类型-私有节点
+     */
+    public static final String PRIVATE_NODE = "private";
+
+    /**
+     * infura节点
+     */
+    public static final String INFURA_NODE = "infura";
+
     /**
      *
      */
@@ -78,4 +91,40 @@ public class FilecoinCnt {
      */
     public static final int DEFAULT_TIMEOUT = 10000;
 
+
+    /**
+     * fil单位
+     */
+    public static enum Unit {
+        DEFAULT("default", 0),
+        ETHER("fil", 18),
+        ;
+
+        private String name;
+        private BigDecimal unitFactor;
+
+        private Unit(String name, int factor) {
+            this.name = name;
+            this.unitFactor = BigDecimal.TEN.pow(factor);
+        }
+
+        public BigDecimal getWeiFactor() {
+            return this.unitFactor;
+        }
+
+        public String toString() {
+            return this.name;
+        }
+
+        public static Unit fromString(String name) {
+            if (name != null) {
+                for (Unit value : values()) {
+                    if (value.name.equalsIgnoreCase(name)){
+                        return value;
+                    }
+                }
+            }
+            return valueOf(name);
+        }
+    }
 }

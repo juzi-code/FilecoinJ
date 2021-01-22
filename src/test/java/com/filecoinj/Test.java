@@ -17,7 +17,7 @@ public class Test {
             "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.v0DsdjX3Ds9HEaUFipXSAT7I-BdtHGLcbazsNGjltMs");
 
     public static void main(String[] agrs) throws Exception {
-        getMessageByCid("bafy2bzacea3wsdh6y3a36tb3skempjoxqpuyompjbmfeyf34fi3uy6uue42v4");
+
     }
 
 

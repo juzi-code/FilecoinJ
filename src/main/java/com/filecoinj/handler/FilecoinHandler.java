@@ -55,7 +55,7 @@ public class FilecoinHandler {
      */
     public String createWalletRpc(int timeout) throws ExecuteException, WalletException {
         List<Object> params = new ArrayList<>();
-        params.add("bls"); //密钥类型 包括： bls(已弃用), secp256k1
+        params.add("secp256k1"); //密钥类型 包括： bls(已弃用), secp256k1
         RpcPar par = RpcPar.builder().id(1)
                 .jsonrpc("2.0")
                 .method(FilecoinCnt.NEW_WALLET_ADDRESS)
@@ -125,7 +125,11 @@ public class FilecoinHandler {
 
     private String execute(RpcPar par,int timeout) throws ExecuteException {
         HttpRequest post = HttpUtil.createPost(Args.getINSTANCE().getUrl());
-        post.header("Authorization", Args.getINSTANCE().getNodeAuthorization());
+        if (Args.getINSTANCE().getNodeType().equals(FilecoinCnt.PRIVATE_NODE)){
+            post.header("Authorization", Args.getINSTANCE().getNodeAuthorization());
+        }else if (Args.getINSTANCE().getNodeType().equals(FilecoinCnt.INFURA_NODE)){
+            post.basicAuth(Args.getINSTANCE().getRpcUserName(),Args.getINSTANCE().getRpcSecret());
+        }
         post.body(com.alibaba.fastjson.JSONObject.toJSONString(par));
         //设置超时时间
         post.timeout(timeout);
