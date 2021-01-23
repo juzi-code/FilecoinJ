@@ -255,7 +255,7 @@ public class Filecoin {
     }
 
     /**
-     * 根据消息cid获取消息信息
+     * 根据消息cid获取消息详情
      * @param cid
      * @return
      * @throws ExecuteException
@@ -285,7 +285,7 @@ public class Filecoin {
     }
 
     /**
-     * 获取当前最新区块链
+     * 获取当前最新Tip
      * @return
      * @throws ExecuteException
      */
@@ -298,7 +298,7 @@ public class Filecoin {
     }
 
     /**
-     * 根据区块高度获取区块链
+     * 根据高度获取Tip
      * @param height
      * @return
      * @throws ExecuteException
@@ -310,6 +310,24 @@ public class Filecoin {
 
     public ChainResult getChainTipSetByHeight(BigInteger height, int timeout) throws ExecuteException, ParameException {
         return filcoinHandler.getChainTipSetByHeight(height, timeout);
+    }
+
+    /**
+     * 获取指定高度的所有消息
+     * @param height
+     * @return
+     */
+    public ChainMessagesResult getMessagesByHeight(BigInteger height) throws ParameException, ExecuteException {
+        ChainMessagesResult res = null;
+        ChainResult chainTipSet = getChainTipSetByHeight(height);
+        if (chainTipSet != null && chainTipSet.getBlockCidList() != null){
+            res = ChainMessagesResult.builder().blockCidList(chainTipSet.getBlockCidList()).build();
+            for (String blockCid : chainTipSet.getBlockCidList()) {
+                List<MessagesResult> messagesList = getMessagesByBlockCid(blockCid);
+                res.setMessageList(messagesList);
+            }
+        }
+        return res;
     }
 
 

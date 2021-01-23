@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
@@ -22,7 +23,7 @@ public class MessagesResult {
 
     private String to;
 
-    private BigInteger value;
+    private BigDecimal value;
 
     private Integer nonce;
 

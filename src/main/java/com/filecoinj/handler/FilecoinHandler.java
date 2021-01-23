@@ -19,6 +19,7 @@ import com.filecoinj.model.GetGas;
 import com.filecoinj.model.RpcPar;
 import com.filecoinj.model.Transaction;
 import com.filecoinj.model.result.*;
+import com.filecoinj.utils.Convert;
 import org.springframework.util.StringUtils;
 import ove.crypto.digest.Blake2b;
 
@@ -355,15 +356,18 @@ public class FilecoinHandler {
             JSONObject jsonObject = new JSONObject(execute);
             JSONObject result = jsonObject.getJSONObject("result");
             JSONArray blsMessagesArr = result.getJSONArray("BlsMessages");
-            JSONArray SecpkMessagesArr = result.getJSONArray("SecpkMessages");
+            JSONArray secpkMessagesArr = result.getJSONArray("SecpkMessages");
             if (blsMessagesArr != null){
                 for (Object o : blsMessagesArr) {
                     messagesResults.add(messagesJsonToMessagesResult(new JSONObject(o)));
                 }
             }
-            if (SecpkMessagesArr != null){
-                for (Object o : SecpkMessagesArr) {
-                    messagesResults.add(messagesJsonToMessagesResult(new JSONObject(o)));
+            if (secpkMessagesArr != null){
+                for (Object o : secpkMessagesArr) {
+                    JSONObject secpkMessagesObj = new JSONObject(o);
+                    JSONObject message = secpkMessagesObj.getJSONObject("Message");
+                    message.putOpt("CID", secpkMessagesObj.getObj("CID"));
+                    messagesResults.add(messagesJsonToMessagesResult(message));
                 }
             }
         } catch (Exception e) {
@@ -407,7 +411,7 @@ public class FilecoinHandler {
     }
 
     /**
-     * 获取当前最新一个区块链数据
+     * 获取当前最新一个Tip
      * @param timeout
      * @return
      * @throws ExecuteException
@@ -432,7 +436,7 @@ public class FilecoinHandler {
     }
 
     /**
-     * 根据链高度获取区块数据
+     * 根据链高度获取Tip
      * @param heigth
      * @param timeout
      * @return
@@ -473,7 +477,7 @@ public class FilecoinHandler {
                 .to(jsonObject.getStr("To"))
                 .version(jsonObject.getInt("Version"))
                 .nonce(jsonObject.getInt("Nonce"))
-                .value(jsonObject.getBigInteger("Value"))
+                .value(Convert.fromAtto(jsonObject.getBigInteger("Value").toString(), Convert.Unit.FIL))
                 .gasLimit(jsonObject.getInt("GasLimit"))
                 .gasFeeCap(jsonObject.getBigInteger("GasFeeCap"))
                 .gasPremium(jsonObject.getBigInteger("GasPremium"))
