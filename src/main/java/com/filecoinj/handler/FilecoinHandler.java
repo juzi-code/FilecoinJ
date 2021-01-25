@@ -491,9 +491,10 @@ public class FilecoinHandler {
         StateGetReceiptResult res = null;
         try {
             JSONObject jsonObject = new JSONObject(execute);
-            res = StateGetReceiptResult.builder().exitCode(jsonObject.getInt("ExitCode"))
-                    .messageReturn(jsonObject.getStr("Return"))
-                    .gasUsed(jsonObject.getBigInteger("GasUsed"))
+            JSONObject result = jsonObject.getJSONObject("result");
+            res = StateGetReceiptResult.builder().exitCode(result.getInt("ExitCode"))
+                    .messageReturn(result.getStr("Return"))
+                    .gasUsed(result.getBigInteger("GasUsed"))
                     .build();
         } catch (Exception e) {
             e.printStackTrace();

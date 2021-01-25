@@ -6,7 +6,7 @@
 
     <groupId>com.filecoinj</groupId>
     <artifactId>filecoinj</artifactId>
-    <version>1.0</version>
+    <version>1.0-RELEASE</version>
     <name>filcoinj</name>
 
     <properties>
