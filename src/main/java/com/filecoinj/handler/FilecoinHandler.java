@@ -466,6 +466,42 @@ public class FilecoinHandler {
         return chainResult;
     }
 
+    /**
+     * 获取消息收据
+     * @param messageCid
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public StateGetReceiptResult stateGetReceipt(String messageCid, int timeout) throws ExecuteException, ParameException {
+        if (StringUtils.isEmpty(messageCid)){
+            throw new ParameException("paramter cannot be empty");
+        }
+        List<Object> params = new ArrayList<>();
+        HashMap<String, String> cidParam = new HashMap<>();
+        cidParam.put("/", messageCid);
+        params.add(cidParam);
+        params.add(null);
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.STATE_GET_RECEIPT)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        StateGetReceiptResult res = null;
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            res = StateGetReceiptResult.builder().exitCode(jsonObject.getInt("ExitCode"))
+                    .messageReturn(jsonObject.getStr("Return"))
+                    .gasUsed(jsonObject.getBigInteger("GasUsed"))
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("getChainTipSetByHeight error " + execute);
+        }
+        return res;
+    }
+
 
     /**
      * 消息json转为消息对象

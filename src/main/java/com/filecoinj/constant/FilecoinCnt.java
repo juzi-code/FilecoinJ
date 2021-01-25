@@ -102,13 +102,18 @@ public class FilecoinCnt {
      */
     public static final String CHAIN_GET_MESSAGE = "Filecoin.ChainGetMessage";
 
+    /**
+     * 获取交易收据
+     */
+    public static final String STATE_GET_RECEIPT = "Filecoin.StateGetReceipt";
+
 
 
 
     /**
      * 默认超时时间
      */
-    public static final int DEFAULT_TIMEOUT = 10000;
+    public static final int DEFAULT_TIMEOUT = 30000;
 
 
     /**

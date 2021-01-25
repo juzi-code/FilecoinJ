@@ -70,7 +70,7 @@ public class Filecoin {
      * @return WalletResult
      */
     public WalletResult importWallet(String privatekey) throws WalletException {
-        return filcoinHandler.importWallet(privatekey);
+        return importWallet(privatekey);
     }
 
     /**
@@ -92,7 +92,7 @@ public class Filecoin {
      * @throws ExecuteException 异常
      */
     public SendResult send(Transaction transaction, String privatekey) throws SendException, ExecuteException {
-        return filcoinHandler.send(transaction, privatekey, FilecoinCnt.DEFAULT_TIMEOUT);
+        return send(transaction, privatekey, FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     /**
@@ -118,7 +118,7 @@ public class Filecoin {
      * @throws ExecuteException 异常
      */
     public SendResult easySend(EasySend send) throws ParameException, ExecuteException,SendException {
-        return filcoinHandler.easySend(send,FilecoinCnt.DEFAULT_TIMEOUT);
+        return easySend(send,FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     /**
@@ -144,7 +144,7 @@ public class Filecoin {
      * @throws ParameException
      */
     public int getNonce(String address) throws ExecuteException, ParameException {
-        return filcoinHandler.getNonce(address,FilecoinCnt.DEFAULT_TIMEOUT);
+        return getNonce(address,FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     /**
@@ -169,7 +169,7 @@ public class Filecoin {
      * @throws ExecuteException 异常
      */
     public GasResult getGas(GetGas gas) throws ParameException, ExecuteException {
-        return filcoinHandler.getGas(gas,FilecoinCnt.DEFAULT_TIMEOUT);
+        return getGas(gas,FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     /**
@@ -194,7 +194,7 @@ public class Filecoin {
      * @throws ExecuteException   异常
      */
     public BalanceResult balanceOf(String address) throws BalanceOfException, ExecuteException {
-        return filcoinHandler.balanceOf(address,FilecoinCnt.DEFAULT_TIMEOUT);
+        return balanceOf(address,FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     /**
@@ -216,7 +216,7 @@ public class Filecoin {
      * @throws ExecuteException
      */
     public String getWalletDefaultAddress() throws ExecuteException {
-        return filcoinHandler.getWalletDefaultAddress(FilecoinCnt.DEFAULT_TIMEOUT);
+        return getWalletDefaultAddress(FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     /**
@@ -238,7 +238,7 @@ public class Filecoin {
      * @throws ParameException
      */
     public boolean validateAddress(String address) throws ExecuteException, ParameException{
-        return filcoinHandler.validateAddress(address,FilecoinCnt.DEFAULT_TIMEOUT);
+        return validateAddress(address,FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
 
@@ -262,7 +262,7 @@ public class Filecoin {
      * @throws ParameException
      */
     public MessagesResult getMessageByCid(String cid) throws ExecuteException, ParameException{
-        return filcoinHandler.getMessageByCid(cid, FilecoinCnt.DEFAULT_TIMEOUT);
+        return getMessageByCid(cid, FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     public MessagesResult getMessageByCid(String cid,int timeout) throws ExecuteException, ParameException{
@@ -277,7 +277,7 @@ public class Filecoin {
      * @throws ParameException
      */
     public List<MessagesResult> getMessagesByBlockCid(String blockCid) throws ExecuteException, ParameException{
-        return filcoinHandler.getChainBlockMessages(blockCid, FilecoinCnt.DEFAULT_TIMEOUT);
+        return getMessagesByBlockCid(blockCid, FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     public List<MessagesResult> getMessagesByBlockCid(String blockCid, int timeout) throws ExecuteException, ParameException{
@@ -290,7 +290,7 @@ public class Filecoin {
      * @throws ExecuteException
      */
     public ChainResult getChainHead() throws ExecuteException{
-        return filcoinHandler.getChainHead(FilecoinCnt.DEFAULT_TIMEOUT);
+        return getChainHead(FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     public ChainResult getChainHead(int timeout) throws ExecuteException{
@@ -305,7 +305,7 @@ public class Filecoin {
      * @throws ParameException
      */
     public ChainResult getChainTipSetByHeight(BigInteger height) throws ExecuteException, ParameException {
-        return filcoinHandler.getChainTipSetByHeight(height, FilecoinCnt.DEFAULT_TIMEOUT);
+        return getChainTipSetByHeight(height, FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
     public ChainResult getChainTipSetByHeight(BigInteger height, int timeout) throws ExecuteException, ParameException {
@@ -328,6 +328,21 @@ public class Filecoin {
             }
         }
         return res;
+    }
+
+    /**
+     * 获取消息收据
+     * @param messageCid
+     * @return
+     * @throws ParameException
+     * @throws ExecuteException
+     */
+    public StateGetReceiptResult stateGetReceipt(String messageCid) throws ParameException, ExecuteException {
+        return stateGetReceipt(messageCid, FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+    public StateGetReceiptResult stateGetReceipt(String messageCid, int timeout) throws ParameException, ExecuteException {
+        return filcoinHandler.stateGetReceipt(messageCid, timeout);
     }
 
 
