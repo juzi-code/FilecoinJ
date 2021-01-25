@@ -1,6 +1,6 @@
 # FilecoinJ
 
-服务于JAVA的Filecoin客户端JSON-RPC封装sdk
+服务于JAVA的Filecoin客户端JSON-RPC封装sdk，支持连接Infura或者私有节点
 
 主要功能有：
 
@@ -12,9 +12,12 @@
 * 6.转账
 * 7.获取余额
 * 8.校验地址有效性
-* 9.根据cid获取交易信息
-
-#正在开发完善中... 实际功能比以上列举要多，Filecoin类中的方法是所有的功能，描述文件有时间会补全...
+* 9.根据消息cid获取消息
+* 10.根据区块cid获取所有消息
+* 11.获取当前最新Tip
+* 12.根据高度获取Tip
+* 13.获取指定高度的所有消息
+* 14.获取消息收据
 
 
 时间有限只整理了钱包交互的基本功能，希望可以供大家参考学习，为区块链技术增添一份力量。
@@ -22,9 +25,19 @@
 在springboot中使用很简单
 * 第一步配置节点信息
  ``` 
+ 私有节点配置内容
  filecoin:
+   node-type: private
    rpc-url: 节点rpc url
    rpc-token: 节点 具有写权限的token
+   
+ infura节点配置内容
+ filecoin:
+   node-type: infura
+   rpc-url: https://filecoin.infura.io
+   rpc-username: xxxxxxx #infura控制台获取
+   rpc-secret: xxxxx     #infura控制台获取
+  
 ```
 * 第二步依赖注入
  ``` 
