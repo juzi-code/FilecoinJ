@@ -11,6 +11,7 @@ import com.filecoinj.model.Transaction;
 import com.filecoinj.model.result.*;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Filecoin {
@@ -322,10 +323,12 @@ public class Filecoin {
         ChainResult chainTipSet = getChainTipSetByHeight(height);
         if (chainTipSet != null && chainTipSet.getBlockCidList() != null){
             res = ChainMessagesResult.builder().blockCidList(chainTipSet.getBlockCidList()).build();
+            ArrayList<MessagesResult> messageList = new ArrayList<>();
             for (String blockCid : chainTipSet.getBlockCidList()) {
                 List<MessagesResult> messagesList = getMessagesByBlockCid(blockCid);
-                res.setMessageList(messagesList);
+                messageList.addAll(messagesList);
             }
+            res.setMessageList(messageList);
         }
         return res;
     }
