@@ -71,7 +71,7 @@ public class Filecoin {
      * @return WalletResult
      */
     public WalletResult importWallet(String privatekey) throws WalletException {
-        return importWallet(privatekey);
+        return filcoinHandler.importWallet(privatekey);
     }
 
     /**
