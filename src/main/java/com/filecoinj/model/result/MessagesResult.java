@@ -19,6 +19,8 @@ public class MessagesResult {
 
     private  String cid;
 
+    private  String _cid;
+
     private String from;
 
     private String to;

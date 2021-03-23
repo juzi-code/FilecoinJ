@@ -9,12 +9,14 @@ import com.filecoinj.model.EasySend;
 import com.filecoinj.model.GetGas;
 import com.filecoinj.model.Transaction;
 import com.filecoinj.model.result.*;
+import lombok.Getter;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Filecoin {
+    @Getter
     private FilecoinHandler filcoinHandler;
 
     public Filecoin(String url, String nodeAuthorization) {
@@ -334,6 +336,24 @@ public class Filecoin {
     }
 
     /**
+     * 获取指定高度父块的所有消息
+     * @param height
+     * @return
+     */
+    public ChainMessagesResult getParentMessagesByHeight(BigInteger height) throws ParameException, ExecuteException {
+        ChainMessagesResult res = null;
+        ChainResult chainTipSet = getChainTipSetByHeight(height);
+        if (chainTipSet != null && chainTipSet.getBlockCidList() != null){
+            res = ChainMessagesResult.builder()
+                    .blockCidList(chainTipSet.getBlockCidList())
+                    .parentBlockCidList(chainTipSet.getParentBlockCidList())
+                    .messageList(chainGetParentMessages(chainTipSet.getBlockCidList().get(0)))
+                    .build();
+        }
+        return res;
+    }
+
+    /**
      * 获取消息收据
      * @param messageCid
      * @return
@@ -346,6 +366,76 @@ public class Filecoin {
 
     public StateGetReceiptResult stateGetReceipt(String messageCid, int timeout) throws ParameException, ExecuteException {
         return filcoinHandler.stateGetReceipt(messageCid, timeout);
+    }
+
+
+    /**
+     * 指定区块的父链头集合中存储的所有消息
+     * @param childBlockCid
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public List<MessagesResult> chainGetParentMessages(String childBlockCid) throws ExecuteException, ParameException {
+        return this.chainGetParentMessages(childBlockCid, FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+
+
+    public List<MessagesResult> chainGetParentMessages(String childBlockCid, int timeout) throws ExecuteException, ParameException {
+        return filcoinHandler.chainGetParentMessages(childBlockCid, timeout);
+    }
+
+    /**
+     * 根据区块cid获取父区块所有消息的收据
+     * @param childBlockCid
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+
+    public List<StateGetReceiptResult> chainGetParentReceipts(String childBlockCid) throws ExecuteException, ParameException {
+        return this.chainGetParentReceipts(childBlockCid, FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+
+    public List<StateGetReceiptResult> chainGetParentReceipts(String childBlockCid, int timeout) throws ExecuteException, ParameException {
+        return filcoinHandler.chainGetParentReceipts(childBlockCid, timeout);
+    }
+
+    /**
+     * 根据区块高度获取父区块所有消息的收据
+     * @param height
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public List<StateGetReceiptResult> chainGetParentReceiptsByHeight(BigInteger height, int timeout) throws ExecuteException, ParameException {
+        ChainResult chain = getChainTipSetByHeight(height, timeout);
+        if (chain != null && chain.getBlockCidList() != null && chain.getBlockCidList().size() > 0){
+            return chainGetParentReceipts(chain.getBlockCidList().get(0), timeout);
+        }
+        return null;
+    }
+
+
+    /**
+     * 根据区块cid和消息列表下标索引获取父区块中指定下标消息收据
+     * （很难懂的备注，因为对接FILCoin太坑了）
+     * @param childBlockCid
+     * @param index
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public StateGetReceiptResult indexChainGetParentReceipts(String childBlockCid, int index, int timeout) throws ExecuteException, ParameException {
+        return filcoinHandler.chainGetParentReceipts(childBlockCid, index, timeout);
+    }
+
+    public StateGetReceiptResult indexChainGetParentReceipts(String childBlockCid, int index) throws ExecuteException, ParameException {
+        return filcoinHandler.chainGetParentReceipts(childBlockCid, index, FilecoinCnt.DEFAULT_TIMEOUT);
     }
 
 

@@ -20,4 +20,6 @@ public class ChainResult {
     private BigInteger height;
 
     private List<String> blockCidList;
+
+    private List<String> parentBlockCidList;
 }

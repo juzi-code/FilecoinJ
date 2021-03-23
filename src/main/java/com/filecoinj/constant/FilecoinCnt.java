@@ -107,6 +107,16 @@ public class FilecoinCnt {
      */
     public static final String STATE_GET_RECEIPT = "Filecoin.StateGetReceipt";
 
+    /**
+     * 根据CID获取区块的父链头集合中存储的消息
+     */
+    public static final String CHAIN_GET_PARENT_MESSAGES = "Filecoin.ChainGetParentMessages";
+
+    /**
+     * 根据区块cid获取区块的父链头集合中所有消息的收据
+     */
+    public static final String CHAIN_GET_PARENT_RECEIPTS = "Filecoin.ChainGetParentReceipts";
+
 
 
 

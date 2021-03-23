@@ -20,6 +20,7 @@ import com.filecoinj.model.RpcPar;
 import com.filecoinj.model.Transaction;
 import com.filecoinj.model.result.*;
 import com.filecoinj.utils.Convert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import ove.crypto.digest.Blake2b;
 
@@ -354,7 +355,14 @@ public class FilecoinHandler {
         ArrayList<MessagesResult> messagesResults = new ArrayList<>();
         try {
             JSONObject jsonObject = new JSONObject(execute);
-            JSONObject result = jsonObject.getJSONObject("result");
+            if (!StringUtils.isEmpty(jsonObject.get("error"))){
+                throw new WalletException("getChainBlockMessages error: " + execute);
+            }
+            String resultObj = jsonObject.getStr("result");
+            if (StringUtils.isEmpty(resultObj)){
+                return messagesResults;
+            }
+            JSONObject result = new JSONObject(resultObj);
             JSONArray blsMessagesArr = result.getJSONArray("BlsMessages");
             JSONArray secpkMessagesArr = result.getJSONArray("SecpkMessages");
             if (blsMessagesArr != null){
@@ -503,6 +511,150 @@ public class FilecoinHandler {
         return res;
     }
 
+    /**
+     * 指定区块的父链头集合中存储的所有消息
+     * @param childBlockCid
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public List<MessagesResult> chainGetParentMessages(String childBlockCid, int timeout) throws ExecuteException, ParameException {
+        if (StringUtils.isEmpty(childBlockCid)){
+            throw new ParameException("paramter cannot be empty");
+        }
+        List<Object> params = new ArrayList<>();
+        HashMap<String, String> _cid = new HashMap<>();
+        _cid.put("/", childBlockCid);
+        params.add(_cid);
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.CHAIN_GET_PARENT_MESSAGES)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        ArrayList<MessagesResult> messagesResults = new ArrayList<>();
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            if (!StringUtils.isEmpty(jsonObject.get("error"))){
+                throw new WalletException("chainGetParentMessages error: " + execute);
+            }
+            String resultStr = jsonObject.getStr("result");
+            if (!StringUtils.isEmpty(resultStr)){
+                JSONArray result = new JSONArray(resultStr);
+                for (Object o : result) {
+                    JSONObject messageObj = new JSONObject(o);
+                    String cid = messageObj.getJSONObject("Cid").getStr("/");
+                    JSONObject message = messageObj.getJSONObject("Message");
+                    MessagesResult messagesResult = MessagesResult.builder()
+                            .cid(cid)
+                            ._cid(message.getJSONObject("CID").getStr("/"))
+                            .from(message.getStr("From"))
+                            .to(message.getStr("To"))
+                            .value(Convert.fromAtto(message.getBigDecimal("Value").toString(), Convert.Unit.FIL))
+                            .nonce(message.getInt("Nonce"))
+                            .gasLimit(message.getInt("GasLimit"))
+                            .gasFeeCap(message.getBigInteger("GasFeeCap"))
+                            .gasPremium(message.getBigInteger("GasPremium"))
+                            .method(message.getInt("Method"))
+                            .params(message.getStr("Params"))
+                            .version(message.getInt("Version")).build();
+                    messagesResults.add(messagesResult);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("chainGetParentMessages childBlockCid: "+ childBlockCid + "; error " + execute);
+        }
+        return messagesResults;
+    }
+
+    /**
+     * 根据区块cid获取父区块所有消息的收据
+     * @param childBlockCid
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public List<StateGetReceiptResult> chainGetParentReceipts(String childBlockCid, int timeout) throws ExecuteException, ParameException {
+        if (StringUtils.isEmpty(childBlockCid)){
+            throw new ParameException("paramter cannot be empty");
+        }
+
+        JSONArray resultArr = chainGetParentReceiptsHandler(childBlockCid, timeout);
+        ArrayList<StateGetReceiptResult> result = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(resultArr)){
+            for (Object o : resultArr) {
+                JSONObject receipt = new JSONObject(o);
+                result.add(
+                        StateGetReceiptResult.builder().exitCode(receipt.getInt("ExitCode"))
+                        .messageReturn(receipt.getStr("Return"))
+                        .gasUsed(receipt.getBigInteger("GasUsed"))
+                        .build()
+                );
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 根据区块cid和消息列表下标索引获取父区块中指定下标消息收据
+     * （很难懂的备注，因为对接FILCoin太坑了）
+     * @param childBlockCid
+     * @param index
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public StateGetReceiptResult chainGetParentReceipts(String childBlockCid, int index, int timeout) throws ExecuteException, ParameException {
+        if (StringUtils.isEmpty(childBlockCid)){
+            throw new ParameException("paramter cannot be empty");
+        }
+        JSONArray resultArr = chainGetParentReceiptsHandler(childBlockCid, timeout);
+        StateGetReceiptResult res = null;
+        if (!CollectionUtils.isEmpty(resultArr)){
+            Object o = resultArr.get(index);
+            if (!StringUtils.isEmpty(o)){
+                JSONObject receiptJson = new JSONObject(o);
+                res = StateGetReceiptResult.builder()
+                        .exitCode(receiptJson.getInt("ExitCode"))
+                        .messageReturn(receiptJson.getStr("Return"))
+                        .gasUsed(receiptJson.getBigInteger("GasUsed")).build();
+            }
+        }
+        return res;
+    }
+
+
+    /**
+     * chainGetParentReceipts JSON RPC数据处理器
+     * @param childBlockCid
+     * @param timeout
+     * @return
+     * @throws ExecuteException
+     */
+    private JSONArray chainGetParentReceiptsHandler(String childBlockCid, int timeout) throws ExecuteException {
+        List<Object> params = new ArrayList<>();
+        HashMap<String, String> cidParam = new HashMap<>();
+        cidParam.put("/", childBlockCid);
+        params.add(cidParam);
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.CHAIN_GET_PARENT_RECEIPTS)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        StateGetReceiptResult res = null;
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            JSONArray result = jsonObject.getJSONArray("result");
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExecuteException("getChainTipSetByHeight error " + execute);
+        }
+    }
+
 
     /**
      * 消息json转为消息对象
@@ -533,7 +685,9 @@ public class FilecoinHandler {
         JSONObject result = jsonObject.getJSONObject("result");
         BigInteger height = result.getBigInteger("Height");
         ArrayList<String> cidList = new ArrayList<>();
+        ArrayList<String> parentCidList = new ArrayList<>();
         JSONArray cidJsonArr = result.getJSONArray("Cids");
+        JSONArray blocksArr = result.getJSONArray("Blocks");
         if (cidJsonArr != null){
             for (Object o : cidJsonArr) {
                 JSONObject cidKy = new JSONObject(o);
@@ -543,7 +697,18 @@ public class FilecoinHandler {
                 }
             }
         }
-        return ChainResult.builder().height(height).blockCidList(cidList).build();
+        if (blocksArr != null && blocksArr.size() > 0){
+            JSONArray cidArr = new JSONObject(blocksArr.get(0)).getJSONArray("Parents");
+            if (cidArr != null){
+                for (Object o : cidArr) {
+                    String cid = new JSONObject(o).getStr("/");
+                    if (!StringUtils.isEmpty(cid)){
+                        parentCidList.add(cid);
+                    }
+                }
+            }
+        }
+        return ChainResult.builder().height(height).blockCidList(cidList).parentBlockCidList(parentCidList).build();
     }
 
 

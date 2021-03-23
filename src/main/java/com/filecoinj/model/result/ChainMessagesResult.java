@@ -14,5 +14,7 @@ import java.util.List;
 public class ChainMessagesResult {
     private List<String> blockCidList;
 
+    private List<String> parentBlockCidList;
+
     private List<MessagesResult> messageList;
 }
