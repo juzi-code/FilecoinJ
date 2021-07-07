@@ -133,7 +133,12 @@ public class FilecoinHandler {
         post.body(com.alibaba.fastjson.JSONObject.toJSONString(par));
         //设置超时时间
         post.timeout(timeout);
-        HttpResponse execute = post.execute();
+        HttpResponse execute = null;
+        try {
+            execute = post.execute();
+        } catch (Exception e) {
+            throw new ExecuteException("execute error :::" + e);
+        }
         if (execute.getStatus() != 200) {
             throw new ExecuteException("execute error " + execute);
         }
@@ -153,7 +158,7 @@ public class FilecoinHandler {
             throw new SendException("parameter cnanot be empty");
         }
         BigInteger account = new BigInteger(transaction.getValue());
-        if (account.compareTo(BigInteger.ZERO) < 1) {
+        if (account.compareTo(BigInteger.ZERO) < 0) {
             throw new SendException("the transfer amount must be greater than 0");
         }
         byte[] cidHash = null;
@@ -249,7 +254,7 @@ public class FilecoinHandler {
                 || gas.getValue() == null) {
             throw new ParameException("paramter cannot be empty");
         }
-        if (gas.getValue().compareTo(BigInteger.ZERO) < 1) {
+        if (gas.getValue().compareTo(BigInteger.ZERO) < 0) {
             throw new ParameException("the transfer amount must be greater than 0");
         }
         List<Object> params = new ArrayList<>();
