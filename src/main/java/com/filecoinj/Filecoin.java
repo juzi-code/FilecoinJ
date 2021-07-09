@@ -1,5 +1,6 @@
 package com.filecoinj;
 
+import cn.hutool.json.JSONObject;
 import com.filecoinj.bean.FilecoinProperties;
 import com.filecoinj.config.Args;
 import com.filecoinj.constant.FilecoinCnt;
@@ -436,6 +437,26 @@ public class Filecoin {
 
     public StateGetReceiptResult indexChainGetParentReceipts(String childBlockCid, int index) throws ExecuteException, ParameException {
         return filcoinHandler.chainGetParentReceipts(childBlockCid, index, FilecoinCnt.DEFAULT_TIMEOUT);
+    }
+
+
+    /**
+     * 获取消息所在区块高度
+     * @param messageCid
+     * @return
+     * @throws ExecuteException
+     * @throws ParameException
+     */
+    public Long getMessageBlockNumber(String messageCid) throws ExecuteException, ParameException {
+        JSONObject jsonObject = filcoinHandler.stateSearchMsg(messageCid, FilecoinCnt.DEFAULT_TIMEOUT);
+        if (jsonObject != null){
+            JSONObject result = jsonObject.getJSONObject("result");
+            if (result != null){
+                Long height = result.getLong("Height");
+                return height;
+            }
+        }
+        return null;
     }
 
 

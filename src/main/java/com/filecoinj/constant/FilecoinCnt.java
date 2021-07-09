@@ -117,6 +117,11 @@ public class FilecoinCnt {
      */
     public static final String CHAIN_GET_PARENT_RECEIPTS = "Filecoin.ChainGetParentReceipts";
 
+    /**
+     * 查询消息的收据和tipset
+     */
+    public static final String STATE_SEARCH_MSG = "Filecoin.StateSearchMsg";
+
 
 
 

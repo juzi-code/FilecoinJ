@@ -631,6 +631,33 @@ public class FilecoinHandler {
         return res;
     }
 
+    /**
+     * 查询消息的收据和tipset
+     * @param msgCid
+     * @return
+     */
+    public JSONObject stateSearchMsg(String msgCid, int timeout) throws ParameException, ExecuteException {
+        if (StringUtils.isEmpty(msgCid)){
+            throw new ParameException("paramter cannot be empty");
+        }
+        List<Object> params = new ArrayList<>();
+        HashMap<String, String> _cid = new HashMap<>();
+        _cid.put("/", msgCid);
+        params.add(_cid);
+        RpcPar par = RpcPar.builder().id(1)
+                .jsonrpc("2.0")
+                .method(FilecoinCnt.STATE_SEARCH_MSG)
+                .params(params).build();
+        String execute = execute(par,timeout);
+        try {
+            JSONObject jsonObject = new JSONObject(execute);
+            return jsonObject;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new ExecuteException("stateSearchMsg msgCid: "+ msgCid + "; error " + execute);
+        }
+    }
+
 
     /**
      * chainGetParentReceipts JSON RPC数据处理器
