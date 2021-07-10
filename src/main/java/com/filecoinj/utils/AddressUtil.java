@@ -1,9 +1,16 @@
 package com.filecoinj.utils;
 
 import cn.hutool.core.codec.Base32;
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.filecoinj.exception.AddressException;
+import com.filecoinj.exception.WalletException;
 import com.filecoinj.model.Address;
+
+import java.util.HashMap;
 
 public class AddressUtil {
     /**
@@ -45,5 +52,29 @@ public class AddressUtil {
                 .bytes(addressBytes)
                 .network(network).build();
 
+    }
+
+    public static String convertToLotus(String originPrivateKey) throws WalletException {
+        try {
+            String base64Key = Base64.encode(HexUtil.decodeHex(originPrivateKey));
+            HashMap<String, String> map = new HashMap<>();
+            map.put("Type", "secp256k1");
+            map.put("PrivateKey", base64Key);
+            String json = JSON.toJSONString(map);
+            return HexUtil.encodeHexStr(json);
+        } catch (Exception e) {
+            throw new WalletException("private key parse error");
+        }
+    }
+
+    public static String convertToOrigin(String privateKey) throws WalletException {
+        try {
+            String json = HexUtil.decodeHexStr(privateKey);
+            JSONObject jsonObject = new JSONObject(json);
+            String base64Key = jsonObject.getStr("PrivateKey");
+            return HexUtil.encodeHexStr(Base64.decode(base64Key));
+        } catch (Exception e) {
+            throw new WalletException("private key parse error");
+        }
     }
 }

@@ -1,13 +1,9 @@
 package com.filecoinj;
 
-import cn.hutool.core.codec.Base64;
-import cn.hutool.core.util.HexUtil;
 import cn.hutool.json.JSONObject;
-import com.alibaba.fastjson.JSON;
 import com.filecoinj.bean.FilecoinProperties;
 import com.filecoinj.config.Args;
 import com.filecoinj.constant.FilecoinCnt;
-import com.filecoinj.crypto.ECKey;
 import com.filecoinj.exception.*;
 import com.filecoinj.handler.FilecoinHandler;
 import com.filecoinj.model.EasySend;
@@ -18,7 +14,6 @@ import lombok.Getter;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class Filecoin {
@@ -61,16 +56,7 @@ public class Filecoin {
      * @return WalletResult
      */
     public WalletResult createWallet() throws WalletException {
-        ECKey ecKey = new ECKey();
-        byte[] privKeyBytes = ecKey.getPrivKeyBytes();
-        byte[] pubKey = ecKey.getPubKey();
-        if (privKeyBytes == null || privKeyBytes.length < 1) {
-            throw new WalletException("create wallet error");
-        }
-        String filAddress = filcoinHandler.byteToAddress(pubKey);
-        String privatekey = HexUtil.encodeHexStr(privKeyBytes);
-        String lotusPrivateKey = convertToLotus(privatekey);
-        return WalletResult.builder().address(filAddress).privatekey(privatekey).lotusPrivateKey(lotusPrivateKey).build();
+        return filcoinHandler.createWallet();
     }
 
     /**
@@ -80,30 +66,6 @@ public class Filecoin {
      */
     public String createWalletRpc() throws WalletException, ExecuteException {
         return filcoinHandler.createWalletRpc(FilecoinCnt.DEFAULT_TIMEOUT);
-    }
-
-    private String convertToLotus(String originPrivateKey) throws WalletException {
-        try {
-            String base64Key = Base64.encode(HexUtil.decodeHex(originPrivateKey));
-            HashMap<String, String> map = new HashMap<>();
-            map.put("Type", "secp256k1");
-            map.put("PrivateKey", base64Key);
-            String json = JSON.toJSONString(map);
-            return HexUtil.encodeHexStr(json);
-        } catch (Exception e) {
-            throw new WalletException("private key parse error");
-        }
-    }
-
-    private String convertToOrigin(String privateKey) throws WalletException {
-        try {
-            String json = HexUtil.decodeHexStr(privateKey);
-            JSONObject jsonObject = new JSONObject(json);
-            String base64Key = jsonObject.getStr("PrivateKey");
-            return HexUtil.encodeHexStr(Base64.decode(base64Key));
-        } catch (Exception e) {
-            throw new WalletException("private key parse error");
-        }
     }
 
     /**

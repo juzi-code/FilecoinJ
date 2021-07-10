@@ -19,6 +19,7 @@ import com.filecoinj.model.GetGas;
 import com.filecoinj.model.RpcPar;
 import com.filecoinj.model.Transaction;
 import com.filecoinj.model.result.*;
+import com.filecoinj.utils.AddressUtil;
 import com.filecoinj.utils.Convert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -36,7 +37,7 @@ public class FilecoinHandler {
         transactionHandler = new TransactionHandler();
     }
 
-    /*public WalletResult createWallet() throws WalletException {
+    public WalletResult createWallet() throws WalletException {
         ECKey ecKey = new ECKey();
         byte[] privKeyBytes = ecKey.getPrivKeyBytes();
         byte[] pubKey = ecKey.getPubKey();
@@ -45,8 +46,9 @@ public class FilecoinHandler {
         }
         String filAddress = byteToAddress(pubKey);
         String privatekey = HexUtil.encodeHexStr(privKeyBytes);
-        return WalletResult.builder().address(filAddress).privatekey(privatekey).build();
-    }*/
+        String lotusPrivateKey = AddressUtil.convertToLotus(privatekey);
+        return WalletResult.builder().address(filAddress).privatekey(privatekey).lotusPrivateKey(lotusPrivateKey).build();
+    }
 
     /**
      * 从rpc节点获取一个新地址
@@ -93,7 +95,7 @@ public class FilecoinHandler {
         return WalletResult.builder().address(filAddress).privatekey(HexUtil.encodeHexStr(privatekey)).build();
     }
 
-    public String byteToAddress(byte[] pub) {
+    private String byteToAddress(byte[] pub) {
         Blake2b.Digest digest = Blake2b.Digest.newInstance(20);
         String hash = HexUtil.encodeHexStr(digest.digest(pub));
 
