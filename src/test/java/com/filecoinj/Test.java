@@ -5,16 +5,13 @@ import com.filecoinj.handler.TransactionHandler;
 import com.filecoinj.model.EasySend;
 import com.filecoinj.model.GetGas;
 import com.filecoinj.model.Transaction;
-import com.filecoinj.model.result.BalanceResult;
-import com.filecoinj.model.result.GasResult;
-import com.filecoinj.model.result.SendResult;
-import com.filecoinj.model.result.WalletResult;
+import com.filecoinj.model.result.*;
 
 import java.math.BigInteger;
 
 public class Test {
     private static Filecoin filecoin = new Filecoin("http://172.16.13.81:1234/rpc/v0",
-            "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBbGxvdyI6WyJyZWFkIiwid3JpdGUiLCJzaWduIiwiYWRtaW4iXX0.v0DsdjX3Ds9HEaUFipXSAT7I-BdtHGLcbazsNGjltMs");
+            "Bearer 123");
 
     public static void main(String[] agrs) throws Exception {
 
@@ -22,8 +19,8 @@ public class Test {
 
 
     public static void getMessageByCid(String cid) throws Exception {
-        String rs = filecoin.getMessageByCid(cid);
-        System.out.println(rs);
+        MessagesResult message = filecoin.getMessageByCid(cid);
+        System.out.println(message);
     }
 
 

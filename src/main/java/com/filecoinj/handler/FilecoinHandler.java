@@ -36,7 +36,7 @@ public class FilecoinHandler {
         transactionHandler = new TransactionHandler();
     }
 
-    public WalletResult createWallet() throws WalletException {
+    /*public WalletResult createWallet() throws WalletException {
         ECKey ecKey = new ECKey();
         byte[] privKeyBytes = ecKey.getPrivKeyBytes();
         byte[] pubKey = ecKey.getPubKey();
@@ -46,7 +46,7 @@ public class FilecoinHandler {
         String filAddress = byteToAddress(pubKey);
         String privatekey = HexUtil.encodeHexStr(privKeyBytes);
         return WalletResult.builder().address(filAddress).privatekey(privatekey).build();
-    }
+    }*/
 
     /**
      * 从rpc节点获取一个新地址
@@ -93,7 +93,7 @@ public class FilecoinHandler {
         return WalletResult.builder().address(filAddress).privatekey(HexUtil.encodeHexStr(privatekey)).build();
     }
 
-    private String byteToAddress(byte[] pub) {
+    public String byteToAddress(byte[] pub) {
         Blake2b.Digest digest = Blake2b.Digest.newInstance(20);
         String hash = HexUtil.encodeHexStr(digest.digest(pub));
 
