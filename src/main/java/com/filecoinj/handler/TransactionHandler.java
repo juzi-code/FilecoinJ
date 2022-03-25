@@ -34,15 +34,15 @@ public class TransactionHandler {
         UnsignedInteger nonceByte = new UnsignedInteger(transaction.getNonce());
 
         byte[] valueBytes = new BigInteger(transaction.getValue()).toByteArray();
-        valueBytes = WriteMajorTypeHeaderBuf(valueBytes, FilecoinCnt.MajUnsignedInt, transaction.getValue());
+        valueBytes = WriteMajorTypeHeaderBuf(valueBytes, FilecoinCnt.MajUnsignedInt);
         ByteString valueByte = new ByteString(valueBytes);
 
         byte[] gasFeeCapBytes = new BigInteger(transaction.getGasFeeCap()).toByteArray();
-        gasFeeCapBytes = WriteMajorTypeHeaderBuf(gasFeeCapBytes, FilecoinCnt.MajUnsignedInt, transaction.getGasFeeCap());
+        gasFeeCapBytes = WriteMajorTypeHeaderBuf(gasFeeCapBytes, FilecoinCnt.MajUnsignedInt);
         ByteString gasFeeCapByte = new ByteString(gasFeeCapBytes);
 
         byte[] gasPeremiumBytes = new BigInteger(transaction.getGasPremium()).toByteArray();
-        gasPeremiumBytes = WriteMajorTypeHeaderBuf(gasPeremiumBytes, FilecoinCnt.MajUnsignedInt, transaction.getGasPremium());
+        gasPeremiumBytes = WriteMajorTypeHeaderBuf(gasPeremiumBytes, FilecoinCnt.MajUnsignedInt);
         ByteString gasPeremiumByte = new ByteString(gasPeremiumBytes);
 
         UnsignedInteger gasLimitByte = new UnsignedInteger(transaction.getGasLimit());
@@ -106,7 +106,7 @@ public class TransactionHandler {
     }
 
 
-    private byte[] WriteMajorTypeHeaderBuf(byte[] bytes, int c, String value) {
+    private byte[] WriteMajorTypeHeaderBuf(byte[] bytes, int c) {
         if (bytes[0] != 0) {
             byte[] buf = new byte[bytes.length + 1];
             buf[0] = (byte) c;
