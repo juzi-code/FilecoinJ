@@ -28,6 +28,10 @@
 在springboot中使用很简单
 * 第一步配置节点信息
  ``` 
+ 公共节点配置内容
+ filecoin:
+   node-type: public
+   rpc-url: https://api.node.glif.io
  私有节点配置内容
  filecoin:
    node-type: private
