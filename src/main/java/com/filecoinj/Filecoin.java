@@ -42,10 +42,13 @@ public class Filecoin {
             Args.getINSTANCE().setNodeType(FilecoinCnt.INFURA_NODE);
             Args.getINSTANCE().setRpcUserName(filecoinProperties.getRpcUsername());
             Args.getINSTANCE().setRpcSecret(filecoinProperties.getRpcSecret());
-        }else {
+        }else if (filecoinProperties.getNodeType().equalsIgnoreCase(FilecoinCnt.PRIVATE_NODE)){
             //默认私有节点
             Args.getINSTANCE().setNodeType(FilecoinCnt.PRIVATE_NODE);
             Args.getINSTANCE().setNodeAuthorization(filecoinProperties.getRpcToken());
+
+        }else if (filecoinProperties.getNodeType().equalsIgnoreCase(FilecoinCnt.PUBLIC_NODE)){
+            Args.getINSTANCE().setNodeType(FilecoinCnt.PUBLIC_NODE);
         }
         filcoinHandler = new FilecoinHandler();
     }

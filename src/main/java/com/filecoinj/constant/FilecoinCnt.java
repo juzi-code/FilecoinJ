@@ -15,6 +15,11 @@ public class FilecoinCnt {
     public static final String INFURA_NODE = "infura";
 
     /**
+     * 无需验证的公共节点
+     */
+    public static final String PUBLIC_NODE = "public";
+
+    /**
      *
      */
     public static final int MajUnsignedInt  = 0;
